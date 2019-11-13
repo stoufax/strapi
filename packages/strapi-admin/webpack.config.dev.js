@@ -28,6 +28,8 @@ module.exports = () => {
         index: '/admin/',
         disableDotRule: true,
       },
+      open: true,
+      openPage: '/admin',
     },
   };
 };

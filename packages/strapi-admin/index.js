@@ -199,7 +199,7 @@ async function build({ dir, env, options, optimize }) {
   });
 }
 
-async function watchAdmin({ dir, port, options }) {
+async function watchAdmin({ dir, host, port, options }) {
   // Create the cache dir containing the front-end files.
   await createCacheDir(dir);
 
@@ -228,7 +228,7 @@ async function watchAdmin({ dir, port, options }) {
 
   const server = new WebpackDevServer(webpack(getWebpackConfig(args)), opts);
 
-  server.listen(port, 'localhost', function(err) {
+  server.listen(port, host, function(err) {
     if (err) {
       console.log(err);
     }
@@ -237,7 +237,7 @@ async function watchAdmin({ dir, port, options }) {
     console.log();
     console.log(
       chalk.green(
-        `Admin development at http://localhost:${port}${opts.publicPath}`
+        `Admin development at http://${host}:${port}${opts.publicPath}`
       )
     );
   });
@@ -279,9 +279,12 @@ async function watchFiles(dir) {
     const packageName = isExtension
       ? `strapi-plugin-${pluginName}`
       : 'strapi-admin';
+
     const targetPath = isExtension
-      ? filePath.split('/extensions/')[1].replace(pluginName, '')
-      : filePath.split('/admin')[1];
+      ? filePath
+          .split(`${path.sep}extensions${path.sep}`)[1]
+          .replace(pluginName, '')
+      : filePath.split(`${path.sep}admin`)[1];
 
     const destFolder = isExtension
       ? path.join(cacheDir, 'plugins', packageName)

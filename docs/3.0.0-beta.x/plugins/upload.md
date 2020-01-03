@@ -76,7 +76,7 @@ You have to send FormData in your request body
 
 ## Upload files related to an entry
 
-To upload files that will be liked to an specific entry.
+To upload files that will be linked to an specific entry.
 
 ### Request parameters
 
@@ -212,9 +212,9 @@ You entry data have to be contained in a `data` key. You have to `JSON.stringify
 And for your files, they have to be prefixed by `files`.
 Example here with cover attribute `files.cover`.
 
-::: note
-If you want to upload files for a group, you will have to specify the inidex of the item you wan to add the file.
-Example `files.my_group_name[the_index].attribute_name`
+::: tip
+If you want to upload files for a component, you will have to specify the inidex of the item you wan to add the file.
+Example `files.my_component_name[the_index].attribute_name`
 :::
 
 ::: warning
@@ -284,7 +284,7 @@ To install a new provider run:
 $ npm install strapi-provider-upload-aws-s3@beta --save
 ```
 
-::: note
+::: tip
 If the provider is not in the mono repo, you probably don't need `@beta` depending if the creator published it with this tag or not.
 :::
 

@@ -34,9 +34,9 @@ You can check all the available providers developed by the community on npmjs.or
 
 To install a new provider run:
 
-:::: tabs cache-lifetime="10" :options="{ useUrlFragment: false }"
+:::: tabs
 
-::: tab "yarn"
+::: tab yarn
 
 ```
 yarn add strapi-provider-email-sendgrid@beta --save
@@ -44,7 +44,7 @@ yarn add strapi-provider-email-sendgrid@beta --save
 
 :::
 
-::: tab "npm"
+::: tab npm
 
 ```
 npm install strapi-provider-email-sendgrid@beta --save
@@ -54,7 +54,7 @@ npm install strapi-provider-email-sendgrid@beta --save
 
 ::::
 
-::: note
+::: tip
 If the provider is not in the mono repo, you probably don't need `@beta` depending if the creator published it with this tag or not.
 :::
 
@@ -111,3 +111,42 @@ If you want to create your own provider without publishing it on **npm** you can
 ```
 
 - Finally, run `yarn install` or `npm install` to install your new custom provider.
+
+## Trouble shooting
+
+You received an `Auth.form.error.email.invalid` error even though the email is valid and exists in the database.
+
+Here is the error response you get from the API.
+
+```json
+{
+  "statusCode": 400,
+  "error": "Bad Request",
+  "message": [
+    {
+      "messages": [
+        {
+          "id": "Auth.form.error.email.invalid"
+        }
+      ]
+    }
+  ]
+}
+```
+
+This error is due to your IP connection. By default, Strapi uses the [`sendmail`](https://github.com/guileen/node-sendmail) package.
+
+This package sends an email from the server it runs on. Depending on the network you are on, the connection to the SMTP server could fail.
+
+Here is the `sendmail` error.
+
+```
+Error: SMTP code:550 msg:550-5.7.1 [87.88.179.13] The IP you're using to send mail is not authorized to
+550-5.7.1 send email directly to our servers. Please use the SMTP relay at your
+550-5.7.1 service provider instead. Learn more at
+550 5.7.1  https://support.google.com/mail/?p=NotAuthorizedError 30si2132728pjz.75 - gsmtp
+```
+
+To fix it, I suggest you to use another email provider that uses third party to send emails.
+
+When using a third party provider, you avoid having to setup a mail server on your server and get extra features such as email analytics.

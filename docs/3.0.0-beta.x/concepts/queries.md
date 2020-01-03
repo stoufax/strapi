@@ -4,13 +4,13 @@ Strapi provides a utility function `strapi.query` to make database queries.
 
 You can just call `strapi.query('modelName', 'pluginName')` to access the query API for any model.
 
-These queries handle for you specific Strapi features like `groups`, `filters` and `search`.
+These queries handle for you specific Strapi features like `components`, `dynamic zones`, `filters` and `search`.
 
 ## API Reference
 
-:::: tabs cache-lifetime="10" :options="{ useUrlFragment: false }"
+:::: tabs
 
-::: tab "find" id="find"
+::: tab find
 
 ### `find`
 
@@ -49,7 +49,7 @@ strapi
 
 :::
 
-::: tab "findOne" id="findone"
+::: tab findOne
 
 ### `findOne`
 
@@ -86,7 +86,7 @@ strapi.query('restaurant').findOne({ id: 1 }, ['category', 'category.name']);
 
 :::
 
-::: tab "create" id="create"
+::: tab create
 
 ### `create`
 
@@ -97,7 +97,20 @@ Creates an entry in the database and returns the entry.
 ```js
 strapi.query('restaurant').create({
   name: 'restaurant name',
-  // this is a group field. the order is persisted in db.
+  // this is a dynamiczone field. the order is persisted in db.
+  content: [
+    {
+      __component: 'blog.rich-text',
+      title: 'Some title',
+      subTitle: 'Some sub title',
+    },
+    {
+      __component: 'blog.quote',
+      quote: 'Some interesting quote',
+      author: 1,
+    },
+  ],
+  // this is a component field. the order is persisted in db.
   opening_hours: [
     {
       day_interval: 'Mon',
@@ -119,7 +132,7 @@ strapi.query('restaurant').create({
 
 :::
 
-::: tab "update" id="update"
+::: tab update
 
 ### `update`
 
@@ -134,6 +147,18 @@ strapi.query('restaurant').update(
   { id: 1 },
   {
     name: 'restaurant name',
+    content: [
+      {
+        __component: 'blog.rich-text',
+        title: 'Some title',
+        subTitle: 'Some sub title',
+      },
+      {
+        __component: 'blog.quote',
+        quote: 'Some interesting quote',
+        author: 1,
+      },
+    ],
     opening_hours: [
       {
         day_interval: 'Mon',
@@ -154,15 +179,29 @@ strapi.query('restaurant').update(
 );
 ```
 
-When updating an entry with its groups beware that if you send the groups without any `id` the previous groups will be deleted and replaced. You can update the groups by sending their `id` with the rest of the fields:
+When updating an entry with its components or dynamiczones beware that if you send the components without any `id` the previous components will be deleted and replaced. You can update the components by sending their `id` with the rest of the fields:
 
-**Update by id and update previous groups**
+**Update by id and update previous components**
 
 ```js
 strapi.query('restaurant').update(
   { id: 1 },
   {
     name: 'Mytitle',
+    content: [
+      {
+        __component: 'blog.rich-text',
+        id: 1,
+        title: 'Some title',
+        subTitle: 'Some sub title',
+      },
+      {
+        __component: 'blog.quote',
+        id: 1,
+        quote: 'Some interesting quote',
+        author: 1,
+      },
+    ],
     opening_hours: [
       {
         id: 2,
@@ -198,7 +237,7 @@ strapi.query('restaurant').update(
 
 :::
 
-::: tab "delete" id="delete"
+::: tab delete
 
 ### `delete`
 
@@ -221,7 +260,7 @@ strapi.query('restaurant').delete({ district: '_18th' });
 
 :::
 
-::: tab "count" id="count"
+::: tab count
 
 ### `count`
 
@@ -249,7 +288,7 @@ strapi.query('restaurant').count({ date_lt: '2019-08-01T00:00:00Z' });
 
 :::
 
-::: tab "search" id="search"
+::: tab search
 
 ### `search`
 
@@ -275,7 +314,7 @@ strapi
 
 :::
 
-::: tab "countSearch" id="countsearch"
+::: tab countSearch
 
 ### `countSearch`
 
@@ -303,9 +342,9 @@ strapi.query(modelName, plugin).model;
 
 Then you can run any queries available on the model. You should refer to the specific ORM documentation for more details:
 
-:::: tabs cache-lifetime="10" :options="{ useUrlFragment: false }"
+:::: tabs
 
-::: tab "Bookshelf" id="bookshelf"
+::: tab Bookshelf
 
 ### Bookshelf
 
@@ -326,7 +365,7 @@ const fields = result.toJSON();
 
 :::
 
-::: tab "Mongoose" id="mongoose"
+::: tab Mongoose
 
 ### Mongoose
 

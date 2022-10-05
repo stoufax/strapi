@@ -95,17 +95,21 @@ results
 node_modules
 .node_history
 
-
 ############################
 # Tests
 ############################
 
 testApp
-coverage
+/coverage/
 
+############################
+# Strapi
+############################
+
+.env
+license.txt
 exports
-
 *.cache
-
+build
 documentation
-exports
+.strapi-updater.json

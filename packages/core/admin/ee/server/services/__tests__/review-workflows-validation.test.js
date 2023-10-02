@@ -1,15 +1,17 @@
 'use strict';
 
-jest.mock('@strapi/strapi/lib/utils/ee', () => {
+jest.mock('@strapi/strapi/dist/utils/ee', () => {
   const eeModule = () => true;
 
   Object.assign(eeModule, {
-    features: {
-      isEnabled() {
-        return true;
-      },
-      getEnabled() {
-        return ['review-workflows'];
+    default: {
+      features: {
+        isEnabled() {
+          return true;
+        },
+        getEnabled() {
+          return ['review-workflows'];
+        },
       },
     },
   });
@@ -35,7 +37,7 @@ const servicesMock = {
 };
 
 const strapiMock = {
-  service: jest.fn((serviceName) => console.log(serviceName) || servicesMock[serviceName]),
+  service: jest.fn((serviceName) => servicesMock[serviceName]),
 };
 let validationService;
 

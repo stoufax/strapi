@@ -13,6 +13,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Alert,
 } from '@strapi/design-system';
 import {
   getYupInnerErrors,
@@ -29,6 +30,7 @@ import toLower from 'lodash/toLower';
 import { useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
 import useDataManager from '../../hooks/useDataManager';
 import useFormModalNavigation from '../../hooks/useFormModalNavigation';
@@ -76,9 +78,15 @@ import makeSelectFormModal from './selectors';
 import { canEditContentType, getAttributesToDisplay, getFormInputNames } from './utils';
 import { createComponentUid, createUid } from './utils/createUid';
 
+// TODO: Remove after the RTE Blocks Alpha release
+const AlphaFeatureAlert = styled(Alert)`
+  button {
+    display: none;
+  }
+`;
+
 /* eslint-disable indent */
 /* eslint-disable react/no-array-index-key */
-
 const FormModal = () => {
   const {
     onCloseModal,
@@ -690,7 +698,7 @@ const FormModal = () => {
           onCloseModal();
         }
 
-        // We don't need to end the loop here we want the reducer to be reinitialised
+        // We don't need to end the loop here we want the reducer to be reinitialized
 
         // Logic for creating a component without clicking on the link in
         // the left menu
@@ -1064,6 +1072,15 @@ const FormModal = () => {
                 <TabPanels>
                   <TabPanel>
                     <Flex direction="column" alignItems="stretch" gap={6}>
+                      {/* TODO: Remove after the RTE Blocks Alpha release */}
+                      {attributeType === 'blocks' && (
+                        <AlphaFeatureAlert variant="warning">
+                          {formatMessage({
+                            id: getTrad('form.feature.alpha'),
+                            defaultMessage: 'This feature is in Alpha.',
+                          })}
+                        </AlphaFeatureAlert>
+                      )}
                       <TabForm
                         form={baseForm}
                         formErrors={formErrors}
@@ -1075,6 +1092,15 @@ const FormModal = () => {
                   </TabPanel>
                   <TabPanel>
                     <Flex direction="column" alignItems="stretch" gap={6}>
+                      {/* TODO: Remove after the RTE Blocks Alpha release */}
+                      {attributeType === 'blocks' && (
+                        <AlphaFeatureAlert variant="warning">
+                          {formatMessage({
+                            id: getTrad('form.feature.alpha'),
+                            defaultMessage: 'This feature is in Alpha.',
+                          })}
+                        </AlphaFeatureAlert>
+                      )}
                       <TabForm
                         form={advancedForm}
                         formErrors={formErrors}

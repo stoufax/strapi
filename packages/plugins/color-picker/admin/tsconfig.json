@@ -1,5 +1,5 @@
 {
-  "extends": "tsconfig/front.json",
+  "extends": "tsconfig/client.json",
   "include": ["src"],
   "exclude": ["node_modules"]
 }

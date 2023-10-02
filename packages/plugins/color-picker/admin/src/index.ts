@@ -1,10 +1,15 @@
 import { prefixPluginTranslations } from '@strapi/helper-plugin';
 
-import ColorPickerIcon from './components/ColorPicker/ColorPickerIcon';
+import { ColorPickerIcon } from './components/ColorPickerIcon';
 import { pluginId } from './pluginId';
-import getTrad from './utils/getTrad';
+import { getTrad } from './utils/getTrad';
 
+// eslint-disable-next-line import/no-default-export
 export default {
+  /**
+   * TODO: we need to have the type for StrapiApp done from `@strapi/admin` package.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register(app: any) {
     app.customFields.register({
       name: 'color',
@@ -22,8 +27,8 @@ export default {
       components: {
         Input: async () =>
           import(
-            /* webpackChunkName: "color-picker-input-component" */ './components/ColorPicker/ColorPickerInput'
-          ),
+            /* webpackChunkName: "color-picker-input-component" */ './components/ColorPickerInput'
+          ).then((module) => ({ default: module.ColorPickerInput })),
       },
       options: {
         advanced: [

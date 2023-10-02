@@ -2,7 +2,7 @@
 
 const { set, isString, map, get } = require('lodash/fp');
 const { ApplicationError } = require('@strapi/utils').errors;
-const { WORKFLOW_MODEL_UID } = require('../../../constants/workflows');
+const { WORKFLOW_MODEL_UID, WORKFLOW_POPULATE } = require('../../../constants/workflows');
 const { getService } = require('../../../utils');
 const { getWorkflowContentTypeFilter } = require('../../../utils/review-workflows');
 const workflowsContentTypesFactory = require('./content-types');
@@ -17,9 +17,20 @@ const processFilters = ({ strapi }, filters = {}) => {
   return processedFilters;
 };
 
+// TODO: How can we improve this? Maybe using traversePopulate?
+const processPopulate = (populate) => {
+  // If it does not exist or it's not an object (like an array) return the default populate
+  if (!populate) {
+    return populate;
+  }
+
+  return WORKFLOW_POPULATE;
+};
+
 module.exports = ({ strapi }) => {
   const workflowsContentTypes = workflowsContentTypesFactory({ strapi });
   const workflowsValidationService = getService('review-workflows-validation', { strapi });
+  const metrics = getService('review-workflows-metrics', { strapi });
 
   return {
     /**
@@ -30,7 +41,9 @@ module.exports = ({ strapi }) => {
      */
     async find(opts = {}) {
       const filters = processFilters({ strapi }, opts.filters);
-      return strapi.entityService.findMany(WORKFLOW_MODEL_UID, { ...opts, filters });
+      const populate = processPopulate(opts.populate);
+
+      return strapi.entityService.findMany(WORKFLOW_MODEL_UID, { ...opts, filters, populate });
     },
 
     /**
@@ -40,7 +53,8 @@ module.exports = ({ strapi }) => {
      * @returns {Promise<object>} - Workflow object matching the requested ID.
      */
     findById(id, opts) {
-      return strapi.entityService.findOne(WORKFLOW_MODEL_UID, id, opts);
+      const populate = processPopulate(opts.populate);
+      return strapi.entityService.findOne(WORKFLOW_MODEL_UID, id, { ...opts, populate });
     },
 
     /**
@@ -50,7 +64,7 @@ module.exports = ({ strapi }) => {
      * @throws {ValidationError} - If the workflow has no stages.
      */
     async create(opts) {
-      let createOpts = { ...opts, populate: { stages: true } };
+      let createOpts = { ...opts, populate: WORKFLOW_POPULATE };
 
       workflowsValidationService.validateWorkflowStages(opts.data.stages);
       await workflowsValidationService.validateWorkflowCount(1);
@@ -70,6 +84,8 @@ module.exports = ({ strapi }) => {
           });
         }
 
+        metrics.sendDidCreateWorkflow();
+
         // Create Workflow
         return strapi.entityService.create(WORKFLOW_MODEL_UID, createOpts);
       });
@@ -84,7 +100,7 @@ module.exports = ({ strapi }) => {
      */
     async update(workflow, opts) {
       const stageService = getService('stages', { strapi });
-      let updateOpts = { ...opts, populate: { stages: true } };
+      let updateOpts = { ...opts, populate: { ...WORKFLOW_POPULATE } };
       let updatedStageIds;
 
       await workflowsValidationService.validateWorkflowCount();
@@ -101,7 +117,7 @@ module.exports = ({ strapi }) => {
             .replaceStages(workflow.stages, opts.data.stages, workflow.contentTypes)
             .then((stages) => stages.map((stage) => stage.id));
 
-          updateOpts = set('data.stages', updatedStageIds, opts);
+          updateOpts = set('data.stages', updatedStageIds, updateOpts);
         }
 
         // Update (un)assigned Content Types
@@ -112,6 +128,8 @@ module.exports = ({ strapi }) => {
             stageId: updatedStageIds ? updatedStageIds[0] : workflow.stages[0].id,
           });
         }
+
+        metrics.sendDidEditWorkflow();
 
         // Update Workflow
         return strapi.entityService.update(WORKFLOW_MODEL_UID, workflow.id, updateOpts);
@@ -136,7 +154,7 @@ module.exports = ({ strapi }) => {
 
       return strapi.db.transaction(async () => {
         // Delete stages
-        await stageService.deleteMany(workflow.stages.map((stage) => stage.id));
+        await stageService.deleteMany(workflow.stages);
 
         // Unassign all content types, this will migrate the content types to null
         await workflowsContentTypes.migrate({

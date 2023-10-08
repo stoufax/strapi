@@ -109,7 +109,7 @@
     "browserslist-to-esbuild": "1.2.0",
     "chalk": "4.1.2",
     "chokidar": "3.5.3",
-    "ci-info": "3.8.0",
+    "ci-info": "3.9.0",
     "cli-table3": "0.6.2",
     "commander": "8.3.0",
     "configstore": "5.0.1",
